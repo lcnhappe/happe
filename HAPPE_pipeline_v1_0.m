@@ -59,7 +59,7 @@
 %%   10 USER INPUTS TO EDIT:
 
 % 1. enter path to the folder that has the datasets you want to analyze
-src_folder_name='C:\happe';
+src_folder_name='C:\happe_testing';
 
 % 2. Which acquisition would you like to use?
 % Note: Users wishing to use a different net type can run HAPPE in 
@@ -467,7 +467,7 @@ for current_file = 1:length(FileNames)
     Number_Channels_User_Selected(current_file)=size(chan_IDs,2);
     Number_ICs_Rejected(current_file)=length(artifact_ICs);
     Number_Good_Channels_Selected(current_file)=size(selected_channel_locations,2);
-    percent_good_chans_selected(current_file)=Number_Good_Channels_Selected(current_file)/Number_Channels_User_Selected(current_file)* 100;
+    Percent_Good_Channels_Selected(current_file)=Number_Good_Channels_Selected(current_file)/Number_Channels_User_Selected(current_file)* 100;
     Percent_ICs_Rejected(current_file)=Number_ICs_Rejected(current_file)/Number_Good_Channels_Selected(current_file)* 100;
     Percent_Variance_Kept_of_Post_Waveleted_Data(current_file)=varianceWav;
     if isempty(bad_channels_removed)
