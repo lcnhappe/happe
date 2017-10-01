@@ -59,7 +59,7 @@
 %%   10 USER INPUTS TO EDIT:
 
 % 1. enter path to the folder that has the datasets you want to analyze
-src_folder_name='C:\happe_testing';
+src_folder_name='C:\happe';
 
 % 2. Which acquisition would you like to use?
 % Note: Users wishing to use a different net type can run HAPPE in 
@@ -89,8 +89,12 @@ task_EEG_processing = 0;
 
 %if task-related EEG:
 task_conditions = {'near' 'devr'}; %enter the stimulus condition tags
+
 %if resting-state EEG:
-%list all potential names of the matlab variable that contains the EEG data for your files:
+% list all potential names of the matlab variable that contains the EEG data for your files:
+% Note that variable names that include the string 'Segment' may cause
+% difficulties with pop_importegimat (as data should not be pre-epoched).
+% Consider renaming these variables if difficulties arise
 potential_eeg_var_names = {'Category_1_Segment1','Category_1'};
 
 % 6. do you want to segment your data? yes (=1) or no (=0)
