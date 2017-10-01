@@ -1,0 +1,263 @@
+function env_startup(varargin)
+% Start the BCILAB toolbox, i.e. set up global data structures and load dependency toolboxes. 
+% env_startup(Options...)
+%
+% This will be replaced/complemented by an eegplugin_ function in the near future.
+%
+% In:   
+%  Options... : optional name-value pairs; allowed names are:
+%
+%               'data':  Path where data sets are stored, required by most loading routines.
+%                        (default: /data on Linux/Unix/Mac or MatlabInstallDrive:\data on Windows)
+%                        Note: this may also be a cell array of directories, in which case references to data:/ are looked up
+%                              in all of the specified directories, and the best match is generally taken.
+%
+%               'store': Path in which data shall be stored. Write permissions necessary (by default identical to the data path)
+%
+%               'cache': Path where intermediate data sets are cached. Should be located on a fast (local) drive with
+%                        sufficient free capacity.
+%                        * if this is left unspecified or empty, the cache is disabled
+%                        * if this is a directory, it is used as the default cache location
+%                        * a fine-grained cache setup is established by specifying a cell array of cache locations,
+%                          where each cache location is a cell array of name-value pairs, with possible names:
+%                          'tag': arbitrary identifier for the cache location (default: 'location_i', for the i'th location)
+%                                 must be a valid MATLAB struct field name
+%                          'dir': directory of the cache location (e.g. '/tmp/bcilab_tmp/'), mandatory
+%                          'time': only computations taking more than this many seconds may be stored in this location,
+%                                  but if a computation takes so long that another cache location with a higher time applies,
+%                                  that other location is preferred. For example, the /tmp directory may take computations that
+%                                  take at least a minute, the home directory may take computations that take at least an hour,
+%                                  the shared /data/results location of the lab may take computations that take at least 12 hours
+%                                  (default: 30)
+%                          'free': minimum amount of space to keep free on the given location, in GiB, or,
+%                                  if smaller than 1, free is taken as the fraction of total space to keep free (default: 0.1)
+%
+%               'temp': temp directory (for misc data not managed by the cache system, e.g., AMICA output)
+%                       (default: BCILABDIR/temp, or CACHEDIR/bcilab_temp if a cache directory was specified)
+%            
+%               'mem_capacity': capacity of the memory cache, in GiB (default: 2)
+%
+%               'data_reuses' : estimated number of reuses of a dataset being computed (default: 3)
+%                               ... depending on disk access speeds, this determines whether it makes sense to cache the dataset
+%
+%               'parallel' : parallelization options; cell array of name-value pairs, with names:
+%                             'engine': parallelization engine to use, can be 'local','ParallelComputingToolbox', or 'BLS' (BCILAB Scheduler) (default: 'local')
+%                             'pool': node pool, cell array of 'host:port' strings; necessary for the BLS scheduler (default: {'localhost:23547','localhost:23548', ..., 'localhost:23554'})
+%                             'policy': scheduling policy function; necessary for the BLS scheduler (default: 'hlp_reschedule_policy')
+%
+%               'menu' : create a menu bar (default: true)
+%
+% Examples:
+%  env_startup('data','C:\Data', 'cache','C:\Data\Temp');
+%  env_startup('data','/media/data', 'store','/media/data/results', 'cache',{{'dir','/tmp/bcilab','time',60,'free',15}});
+%
+% See also:
+%  env_translatepath()
+%
+%                                       Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
+%                                       2010-03-28
+
+keyboar
+% determine the code directories
+tmpdir = path_normalize(fileparts(mfilename('fullpath')));
+delims = strfind(tmpdir,filesep);
+function_dir = tmpdir(1:delims(end));
+base_dir = tmpdir(1:delims(end-1));
+dependency_dir = [base_dir 'dependencies'];
+resource_dir = [base_dir 'resources'];
+script_dir = [base_dir 'userscripts'];
+% add them to the MATLAB path
+disp('Loading dependencies...');
+addpath(genpath(function_dir));
+evalc('addpath(genpath(script_dir))');
+evalc('addpath([base_dir ''userdata''])');
+ep = which('eeglab');
+if ~isempty(ep) && isempty(strfind(mfilename('fullpath'),fileparts(which('eeglab'))))
+    % remove existing eeglab path references, if we are not ourselves contained in this EEGLAB distribution
+    paths = explode(path,pathsep);
+    ep = explode(ep,filesep);
+    retain = cellfun('isempty',strfind(paths,ep{end-1}));
+    path(sprintf(['%s' pathsep],paths{retain}));
+    if ~all(retain)
+        disp('  The previously loaded EEGLAB path has been replaced.'); end
+end
+load_dependencies(genpath(dependency_dir));
+
+% get options
+opts = hlp_varargin2struct(varargin,'data',[],'store',[],'cache',[],'temp',[],'mem_capacity',2,'data_reuses',3,'parallel',{'use','local'}, 'menu',true);
+
+% process data directories
+if isempty(opts.data)
+    root = matlabroot;
+    opts.data = [root(1:find(root==filesep,1)) 'data'];
+    disp(['No data directory specified. Using ' opts.data '.']);
+end
+if ~iscell(opts.data)
+    opts.data = {opts.data}; end
+for d = 1:length(opts.data)
+    opts.data{d} = path_normalize(opts.data{d}); end
+
+% process store directory
+if isempty(opts.store)
+    opts.store = opts.data{1}; end
+opts.store = path_normalize(opts.store);
+
+% process cache directories
+if isempty(opts.cache)
+    opts.cache = {}; end
+if ischar(opts.cache)
+    opts.cache = {{'dir',opts.cache}}; end
+if iscell(opts.cache) && ~isempty(opts.cache) && ~iscell(opts.cache{1})
+    opts.cache = {opts.cache}; end
+for d=1:length(opts.cache)
+    opts.cache{d} = hlp_varargin2struct(opts.cache{d},'dir',mandatory,'tag',['location_' num2str(d)],'time',30,'free',0.1); end
+for d=1:length(opts.cache)
+    % make sure that the BCILAB cache is in its own proper sub-directory
+    opts.cache{d}.dir = [path_normalize(opts.cache{d}.dir) filesep 'bcilab_cache'];
+    % create the directory if necessary
+    if ~isempty(opts.cache{d}.dir) && ~exist(opts.cache{d}.dir,'dir')
+        try
+            io_mkdirs([opts.cache{d}.dir filesep],{'+w','a'});
+        catch
+            disp(['cache directory ' opts.cache{d}.dir ' does not exist and could not be created']);
+        end
+    end
+end
+
+% process temp directory
+if isempty(opts.temp)    
+    if ~isempty(opts.cache)
+        opts.temp = [fileparts(opts.cache{1}.dir) filesep 'bcilab_temp']; 
+    else
+        opts.temp = [base_dir filesep 'temp'];
+    end
+end
+opts.temp = path_normalize(opts.temp);
+try
+    io_mkdirs([opts.temp filesep],{'+w','a'});
+catch
+    disp(['temp directory ' opts.temp ' does not exist and could not be created']);
+end
+
+% set global variables
+global bcilab
+bcilab.paths = struct('function_path',{function_dir}, 'data_paths',{opts.data}, 'store_path',{opts.store}, 'dependency_path',{dependency_dir},'resource_path',{resource_dir},'temp_path',{opts.temp});
+for d=1:length(opts.cache)
+    location = rmfield(opts.cache{d},'tag');
+    % convert GiB to bytes
+    if location.free >= 1 
+        location.free = location.free*1024*1024*1024; end    
+    try
+        % probe the cache locations...
+        import java.io.*; 
+        % try to add a free space checker (Java File object), which we use to check the quota, etc.
+        location.space_checker = File(opts.cache{d}.dir);
+        filename = [opts.cache{d}.dir filesep '__probe_cache__.mat'];
+        if exist(filename,'file') 
+            delete(filename); end
+        oldvalue = location.space_checker.getFreeSpace;
+        testdata = double(rand(1024)); %#ok<NASGU>
+        objinfo = whos('testdata');
+        % do a quick read/write test
+        t0=tic; save(filename,'testdata'); location.writestats = struct('size',{0 objinfo.bytes},'time',{0 toc(t0)});
+        t0=tic; load(filename); location.readstats = struct('size',{0 objinfo.bytes},'time',{0 toc(t0)});
+        newvalue = location.space_checker.getFreeSpace;
+        delete(filename);
+        % test if the space checker works, and also get some quick measurements of disk read/write speeds
+        if newvalue >= oldvalue
+            location = rmfield(location,'space_checker'); end        
+        % and turn the free space ratio into an absolute value
+        if location.free < 1
+            location.free = location.free*location.space_checker.getTotalSpace; end        
+	catch, end
+    bcilab.cache.disk_paths.(opts.cache{d}.tag) = location;     
+end
+bcilab.cache.capacity = opts.mem_capacity*1024*1024*1024;
+bcilab.cache.reuses = opts.data_reuses;
+bcilab.cache.data = struct();
+bcilab.cache.sizes = struct();
+bcilab.cache.times = struct();
+bcilab.stackframes.ov = struct();
+bcilab.workspace.ov = struct();
+% set parallelization settings
+bcilab.parallel = hlp_varargin2struct(opts.parallel, ...
+    'engine','local', ...
+    'pool',{'localhost:23547','localhost:23548','localhost:23549','localhost:23550','localhost:23551','localhost:23552','localhost:23553','localhost:23554'}, ...
+    'policy','hlp_reschedule_policy');
+
+try
+    cd(script_dir);
+catch
+end
+
+% set up some microcache properties
+hlp_microcache('arg','lambda_equality',true);
+hlp_microcache('spec','lambda_equality',true,'group_size',5);
+
+% show toolbox status
+fprintf('\n');
+disp(['code is in ' function_dir]);
+datalocs = [];
+for d = opts.data
+    datalocs = [datalocs d{1} ', ']; end %#ok<AGROW>
+disp(['data is in ' datalocs(1:end-2)]);
+disp(['results are in ' opts.store]);
+if ~isempty(opts.cache)
+    fnames = fieldnames(bcilab.cache.disk_paths);
+    for f = 1:length(fnames)
+        if f == 1
+            disp(['cache is in ' bcilab.cache.disk_paths.(fnames{f}).dir ' (' fnames{f} ')']);
+        else
+            disp(['            ' bcilab.cache.disk_paths.(fnames{f}).dir ' (' fnames{f} ')']);
+        end
+    end    
+else
+    disp('cache is disabled');
+end
+disp(['temp is in ' opts.temp]);
+fprintf('\n');
+disp('Welcome to the BCILAB toolbox!')
+fprintf('\n');
+
+% create a menu
+if opts.menu
+    env_showmenu(); end
+
+
+% normalize a directory path
+function dir = path_normalize(dir)
+dir = strrep(strrep(dir,'\',filesep),'/',filesep);
+if dir(end) == filesep
+   dir = dir(1:end-1); end
+
+
+% from the given path list, add all paths that contain an active env_add.m
+% file (active: either empty or runs without exceptions and ans is not being 
+%set to false), and execute all env_exec.m files
+function load_dependencies(pathlist)
+add_paths = {};
+for px=explode(pathlist,pathsep)
+    p = px{1};
+    if exist([p filesep 'env_add.m'],'file')
+        [dummy,active] = evalc('runscript([p filesep ''env_add.m''])'); %#ok<ASGLU>
+        if active
+            add_paths{end+1} = p; end
+    end
+    if exist([p filesep 'env_exec.m'],'file')
+        runscript([p filesep 'env_exec.m']); end
+end
+if ~isempty(add_paths)
+    addpath(add_paths{:}); end
+
+
+% run the given script (in its own scope...)
+% and return the result of the last line
+function ans = runscript(filename__)
+try
+    ans = 1; %#ok<NOANS>
+    run(filename__);
+catch
+    %disp(['Error while running dependency loader ' filename__]);
+    %disp('The dependency will likely not be fully operational.');
+    ans = 0; %#ok<NOANS>
+end

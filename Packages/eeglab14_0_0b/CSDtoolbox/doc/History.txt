@@ -1,0 +1,36 @@
+CSD Toolbox - Detailed Revision History
+=======================================
+
+07/21/10 Release CSD Toolbox 1.1
+07/21/10   Added: question (faq) about reducing memory demands
+07/20/10   Added: questions (faq) about using CSD toolbox with EEGlab
+           Added: incomplete publications list (pub.html) web page
+         Updated: web pages (index, tutorial)
+07/19/10   Added: example code EEGlab_Make_G_H.m (courtesy of John J.B. Allen, Arizona)
+                  to demonstrate how G and H matrices can be generated within EEGlab
+           Added: example code EEGlab_Loop_Epochs.m (John J.B. Allen) showing how to
+                  loop through all epochs (trials) of an EEGlab data file using different
+                  Matlab instructions
+           Fixed: improved 2-D location mapping of function MapMontage.m
+06/17/10   Added: questions (faq) about post-processing of CSD data and CSD polarity
+04/11/10   Added: function ConvertLocations.m converts 3-D Cartesian locations *.txt format
+         Changed: function GetGH.m allows more rigid values for spline constant m [2..10]
+07/30/09   Added: function ConvertLocations.m converts 3-D Cartesian locations *.xyz format
+06/03/09   Added: questions (faq) about matrix orientation and Matlab's CSD.m routine
+           Added: questions (faq, errors) about linked reference and inverse solutions
+           Added: question (faq) about non-cephalic reference
+06/02/09   Added: questions (faq, errors) about CSD spectra
+
+05/22/09 Release CSD Toolbox 1.0
+05/22/09   Added: Questions (faq.html) and common mistakes (errors.html)
+           Added: progress bar to function GetGH.m
+05/19/09   Added: function ConvertLocations.m converts between *.ced/*.locs (EEGlab) and *.csd
+                  (CSD toolbox) ASCII montage file formats
+05/16/09   Fixed: memory claim for output matrices used inappropriate G and H dimensions (CSD.m)
+05/15/09   Added: function WriteMatrix2Text.m to write a data matrix to an ASCII file
+05/14/09   Added: function ExtractMontage.m extracts a CSD montage from a *.csd file
+           Added: function MapMontage.m maps the locations of a CSD montage in 2-D
+           Added: m-constant option to function GetGH.m
+           Added: Default URL "http://psychophysiology.cpmc.columbia.edu/CSDtoolbox.htm"
+05/12/09 Changed: function GetGH.m obtains G- and H-matrices required for the CSD.m routine
+05/07/09   Added: Initial concept for CSD toolbox web site

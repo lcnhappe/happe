@@ -1,0 +1,22 @@
+CSD Toolbox - What's new in the current version?  (see History.txt for revision details)
+================================================
+
+Version 1.1 (July 21, 2010)
+- Additions to the Frequently-Asked-Questions (FAQ) page
+- Example scripts for using the CSD toolbox with EEGlab (provided by John J.B. Allen, Arizona)
+- function ConvertLocations.m supports additional 3-D Cartesian location formats (*.xyz; *.txt)
+- function GetGH.m accepts more rigid values for spline constant m [2..10]
+- Updated web pages
+- Minor fixes and improvements
+
+Version 1.0 (May 22, 2009)
+- Routine to convert between EEGlab and CSD toolbox spherical coordinates
+- Routine to write data matrix to a formatted text file
+- Additional functions to extract and display an EEG montage
+- Spherical coordinates for 330 standard 10-20-system and 129 geodesic (GSN) scalp locations
+- Common mistakes and errors page
+- Frequently-Asked-Questions (FAQ) page
+- Tutorial with example code
+- Documentation home page with credits, references, background and overview
+- Default URL "http://psychophysiology.cpmc.columbia.edu/CSDtoolbox.htm"
+- Initial release of CSD Toolbox
