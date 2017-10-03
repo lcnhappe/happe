@@ -501,8 +501,6 @@ for current_file = 1:length(FileNames)
     end
 end
 
-rmpath(genpath(cleanline_path));
-
 %% generate output table in the "preprocessed" subfolder listing the subject file name and relevant variables for assesssing how good/bad that datafile was and how well the pipeline worked
 outputtable=table(FileNames',File_Length_In_Secs',Number_Channels_User_Selected',Number_Segments_Post_Segment_Rejection',...
     Number_Good_Channels_Selected', Percent_Good_Channels_Selected', Interpolated_Channel_IDs',Number_ICs_Rejected',...
@@ -515,3 +513,5 @@ outputtable.Properties.VariableNames ={'FileNames','File_Length_In_Secs','Number
     'Mean_Artifact_Probability_of_Kept_ICs','Range_Artifact_Probability_of_Kept_ICs','Min_Artifact_Probability_of_Kept_ICs',...
     'Max_Artifact_Probability_of_Kept_ICs'};
 writetable(outputtable, ['HAPPE_all_subs_output_table ',datestr(now,'dd-mm-yyyy'),'.csv']);
+
+rmpath(genpath(cleanline_path));
