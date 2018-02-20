@@ -6,14 +6,14 @@
 %
 % For a detailed description of the pipeline and user options, please see the following manuscript:
 % Gabard-Durnam, et al., (submitted).To be updated upon acceptance for publication.
-% Contributors to HAPP-E:
+% Contributors to HAPPE:
 %
 % Laurel Joy Gabard-Durnam (laurel.gabarddurnam@gmail.com)
 % Adriana S. Mendez Leal (asmendezleal@gmail.com)
 % Carol L. Wilkinson (carol.wilkinson@childrens.harvard.edu)
 % April R. Levin (april.levin@childrens.harvard.edu)
 %
-% HAPP-E includes code that is dependent on the following third-party software.
+% HAPPE includes code that is dependent on the following third-party software.
 % Please reference this third-party software in any manuscripts making use of HAPP-E as below:
 %
 % EEGLab A Delorme & S Makeig (2004) EEGLAB: an open source toolbox for
@@ -179,7 +179,7 @@ if exist('cleanline','file')
     cleanline_path = cleanline_path(1:findstr(cleanline_path,'eegplugin_cleanline.m')-1);
     addpath(genpath(cleanline_path));
 else
-    error('please make sure cleanline is on your path');
+    error('Please make sure cleanline is on your path');
 end
 
 % find path to sensor layout
@@ -188,7 +188,8 @@ if layout_type ==1
 elseif layout_type ==2
     chan_locations = [happe_directory_path filesep 'acquisition_layout_information' filesep 'GSN-HydroCel-128.sfp'];
 else
-    error ('Invalid sensor layout selection')
+    error (['Invalid sensor layout selection. Users wishing to use a net type not supported by HAPPE can run HAPPE through'...
+'the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript'])
 end
 
 % cd get file list
