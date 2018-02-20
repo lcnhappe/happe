@@ -316,12 +316,21 @@ for current_file = 1:length(FileNames)
     %% run wavelet-ICA (ICA first for clustering the data, then wavelet thresholding on the ICs)
     %uses a soft, global threshold for the wavelets, wavelet family is coiflet (level 5), threshold multiplier .75 to remove more high frequency noise
     %for details, see wICA.m function
-    if pipeline_visualizations_semiautomated == 0
-        [wIC, A, W, IC] = wICA(EEG,'runica', 1, 0, [], 5);
-    elseif pipeline_visualizations_semiautomated == 1
-        [wIC, A, W, IC] = wICA(EEG,'runica', 1, 1, srate, 5);
-    end
     
+    try 
+        if pipeline_visualizations_semiautomated == 0
+            [wIC, A, W, IC] = wICA(EEG,'runica', 1, 0, [], 5);
+        elseif pipeline_visualizations_semiautomated == 1
+            [wIC, A, W, IC] = wICA(EEG,'runica', 1, 1, srate, 5);
+        end
+    catch wica_err
+        if strcmp ('Output argument "wIC" (and maybe others) not assigned during call to "wICA".',wica_err.message)
+            error('Error during wICA, most likely due to memory settings. Please confirm your EEGLAB memory settings are set according to the description in the HAPPE ReadMe')
+        else
+            error (wica_err)
+        end
+    end
+        
     %reconstruct artifact signal as channelsxsamples format from the wavelet coefficients
     artifacts = A*wIC;
     
