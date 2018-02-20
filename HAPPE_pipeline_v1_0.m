@@ -66,7 +66,7 @@ src_folder_name='C:\happe_testing';
 % the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript 
 % EGI Geodesic Sensor Net 64 Channel v2.0: layout_type = 1;
 % EGI Hydrocel Geodesic Sensor Net 128 v1.0 : layout_type = 2;
-layout_type = 2;
+layout_type = 80;
 
 % 3. list channels of interest, including the 10-20 channels. User defined channels occur at the end of the sequence e.g. 'E39' 'E40'
 %the 18 "10-20" channels that NEED to be in the chan_IDs: 'FP1' 'FP2' 'F3'
@@ -188,8 +188,8 @@ if layout_type ==1
 elseif layout_type ==2
     chan_locations = [happe_directory_path filesep 'acquisition_layout_information' filesep 'GSN-HydroCel-128.sfp'];
 else
-    error (['Invalid sensor layout selection. Users wishing to use a net type not supported by HAPPE can run HAPPE through'...
-'the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript'])
+    error ('Invalid sensor layout selection. Users wishing to use an unsupported layout can run HAPPE through\n%s',...
+        ' the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript.')
 end
 
 % cd get file list
