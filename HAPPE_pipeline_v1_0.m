@@ -66,7 +66,7 @@ src_folder_name='C:\happe_testing';
 % the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript 
 % EGI Geodesic Sensor Net 64 Channel v2.0: layout_type = 1;
 % EGI Hydrocel Geodesic Sensor Net 128 v1.0 : layout_type = 2;
-layout_type = 80;
+layout_type = 2;
 
 % 3. list channels of interest, including the 10-20 channels. User defined channels occur at the end of the sequence e.g. 'E39' 'E40'
 %the 18 "10-20" channels that NEED to be in the chan_IDs: 'FP1' 'FP2' 'F3'
@@ -169,7 +169,7 @@ end
 
 %% go to the folder with data, pull file names to feed script,and initialize the arrays to store file specific data quality metrics
 
-% add HAPPE scripts path
+% add HAPPE script path
 happe_directory_path = fileparts(which('HAPPE_pipeline_v1_0.m'));
 addpath(genpath(happe_directory_path));
 
@@ -300,11 +300,11 @@ for current_file = 1:length(FileNames)
         close all;
     end
     %% crude bad channel detection using spectrum criteria and 3SDeviations as channel outlier threshold, done twice
-    EEG = pop_rejchan(EEG, 'elec',chan_index,'threshold',[-3 3],'norm','on','measure','spec','freqrange',[1 125] );
+    EEG = pop_rejchan(EEG, 'elec',chan_index,'threshold',[-3 3],'norm','on','measure','spec','freqrange',[1 125]);
     EEG.setname='rawEEG_f_cs_ln_badc';
     EEG = eeg_checkset( EEG );
     
-    EEG = pop_rejchan(EEG, 'elec',[1:EEG.nbchan],'threshold',[-3 3],'norm','on','measure','spec','freqrange',[1 125] );
+    EEG = pop_rejchan(EEG, 'elec',[1:EEG.nbchan],'threshold',[-3 3],'norm','on','measure','spec','freqrange',[1 125]);
     EEG.setname='rawEEG_f_cs_ln_badc2x';
     EEG = eeg_checkset( EEG );
     selected_channel_locations=EEG.chanlocs;
