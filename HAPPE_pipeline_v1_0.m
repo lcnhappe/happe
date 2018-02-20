@@ -61,7 +61,7 @@
 % 1. enter path to the folder that has the datasets you want to analyze
 src_folder_name='C:\happe_testing';
 
-% 2. Which acquisition would you like to use?
+% 2. Which acquisition layout would you like to use?
 % Note: Users wishing to use a different net type can run HAPPE in 
 % the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript 
 % EGI Geodesic Sensor Net 64 Channel v2.0: layout_type = 1;
