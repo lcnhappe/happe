@@ -88,7 +88,7 @@ freq_to_plot = [6 10 20 30 55];
 task_EEG_processing = 0;
 
 %if task-related EEG:
-task_conditions = {'near' 'devr'}; %enter the stimulus condition tags
+task_conditions = {'near', 'devr'}; %enter the stimulus condition tags
 
 %if resting-state EEG:
 % list all potential names of the matlab variable that contains the EEG data for your files:
@@ -233,9 +233,8 @@ for current_file = 1:length(FileNames)
         events=EEGloaded.event;
         complete_event_info=EEGloaded.urevent;
         srate=double(EEGloaded.srate);
-    end
-    
-    if task_EEG_processing == 0
+        
+    elseif task_EEG_processing == 0
         load(FileNames{current_file});
         srate=double(samplingRate);
         file_eeg_vname = intersect(who,potential_eeg_var_names);
@@ -291,9 +290,11 @@ for current_file = 1:length(FileNames)
     full_selected_channels = EEG.chanlocs;
     
     %% reduce line noise in the data (note: may not completely eliminate, re-referencing helps at the end as well)
-    EEG = pop_cleanline(EEG, 'bandwidth',2,'chanlist',chan_index,'computepower',1,'linefreqs',[60 120] ,'normSpectrum',0,'p',0.01,'pad',2,'plotfigures',0,'scanforlines',1,'sigtype','Channels','tau',100,'verb',0,'winsize',4,'winstep',1, 'ComputeSpectralPower','False');
+    EEG = pop_cleanline(EEG, 'bandwidth',2,'chanlist',chan_index,'computepower',1,'linefreqs',...
+        [60 120] ,'normSpectrum',0,'p',0.01,'pad',2,'plotfigures',0,'scanforlines',1,'sigtype',...
+        'Channels','tau',100,'verb',0,'winsize',4,'winstep',1, 'ComputeSpectralPower','False');
     EEG.setname='rawEEG_f_cs_ln';
-    EEG = eeg_checkset( EEG );
+    EEG = eeg_checkset(EEG);
     
     % close window if visualizations are turned off
     if pipeline_visualizations_semiautomated == 0
