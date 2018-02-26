@@ -144,6 +144,8 @@ NO_AVERAGE_REREF_channel_subset = {'E57','E100'};
 %save_as_format = 0 will save the processed data as a .set file (EEGlab format)
 save_as_format = 0;
 
+eeglab_path = 'C:\happe\Packages\eeglab14_0_0b';
+
 %~~~~~~~~~~~~~~~~~~~~~~ no need to edit beyond this point ~~~~~~~~~~~~~~~~~
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %% make output folders:
@@ -171,9 +173,12 @@ end
 
 % add HAPPE script path
 happe_directory_path = fileparts(which('HAPPE_pipeline_v1_0.m'));
-addpath(genpath(happe_directory_path));
+addpath([happe_directory_path filesep 'acquisition_layout_information'],[happe_directory_path filesep 'scripts'],eeglab_path,genpath([eeglab_path filesep 'functions']));
+plugin_directories = dir([eeglab_path filesep 'plugins']);
+plugin_directories = strcat(eeglab_path,filesep,'plugins',filesep,{plugin_directories.name},';');
+addpath([plugin_directories{:}]);
 
-% add cleanline path
+% % add cleanline path
 if exist('cleanline','file')
     cleanline_path = which('eegplugin_cleanline.m');
     cleanline_path = cleanline_path(1:findstr(cleanline_path,'eegplugin_cleanline.m')-1);
