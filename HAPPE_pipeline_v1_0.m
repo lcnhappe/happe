@@ -173,8 +173,10 @@ end
 happe_directory_path = fileparts(which('HAPPE_pipeline_v1_0.m'));
 
 % will eventually allow users to set own eeglab path -- for now, assume
-% using eeglab14_0_0b included in HAPPE
+% using eeglab14_0_0b included in HAPPE 
 eeglab_path = [happe_directory_path filesep 'Packages' filesep 'eeglab14_0_0b'];
+
+% add relevant folders to path
 addpath([happe_directory_path filesep 'acquisition_layout_information'],[happe_directory_path filesep 'scripts'],...
     eeglab_path,genpath([eeglab_path filesep 'functions']));
 rmpath(genpath([eeglab_path filesep 'functions' filesep 'octavefunc']));
