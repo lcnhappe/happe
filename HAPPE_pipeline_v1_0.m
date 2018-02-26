@@ -180,6 +180,7 @@ eeglab_path = [happe_directory_path filesep 'Packages' filesep 'eeglab14_0_0b'];
 addpath([happe_directory_path filesep 'acquisition_layout_information'],[happe_directory_path filesep 'scripts'],...
     eeglab_path,genpath([eeglab_path filesep 'functions']));
 rmpath(genpath([eeglab_path filesep 'functions' filesep 'octavefunc']));
+
 plugin_directories = dir([eeglab_path filesep 'plugins']);
 plugin_directories = strcat(eeglab_path,filesep,'plugins',filesep,{plugin_directories.name},';');
 addpath([plugin_directories{:}]);
