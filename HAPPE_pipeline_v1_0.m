@@ -167,7 +167,7 @@ if ~isdir ([src_folder_name filesep 'processed'])
     mkdir ([src_folder_name filesep 'processed']);
 end
 
-%% go to the folder with data, pull file names to feed script,and initialize the arrays to store file specific data quality metrics
+%% add relevant folders to path
 
 % add HAPPE script path
 happe_directory_path = fileparts(which('HAPPE_pipeline_v1_0.m'));
@@ -176,7 +176,7 @@ happe_directory_path = fileparts(which('HAPPE_pipeline_v1_0.m'));
 % using eeglab14_0_0b included in HAPPE 
 eeglab_path = [happe_directory_path filesep 'Packages' filesep 'eeglab14_0_0b'];
 
-% add relevant folders to path
+% add HAPPE subfolders and EEGLAB plugin folders to path
 addpath([happe_directory_path filesep 'acquisition_layout_information'],[happe_directory_path filesep 'scripts'],...
     eeglab_path,genpath([eeglab_path filesep 'functions']));
 rmpath(genpath([eeglab_path filesep 'functions' filesep 'octavefunc']));
@@ -202,7 +202,7 @@ else
     error ('Invalid sensor layout selection. Users wishing to use an unsupported layout can run HAPPE through\n%s',...
         ' the Batch EEG Automated Processing Platform (BEAPP),  as described in the HAPPE manuscript.')
 end
-
+%% go to the folder with data, pull file names to feed script,and initialize the arrays to store file specific data quality metrics
 % cd get file list
 cd (src_folder_name);
 if task_EEG_processing == 1
