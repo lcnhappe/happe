@@ -59,7 +59,7 @@
 %%   10 USER INPUTS TO EDIT:
 
 % 1. enter path to the folder that has the datasets you want to analyze
-src_folder_name='C:\happe_testing';
+src_folder_name='C:\happe';
 
 % 2. Which acquisition layout would you like to use?
 % Note: Users wishing to use a different net type can run HAPPE in 
@@ -139,10 +139,10 @@ average_rereference = 1;
 NO_AVERAGE_REREF_channel_subset = {'E57','E100'};
 
 % 10. Select the format to save your processed data at the end of HAPPE!
-%save_as_format = 2 will save the processed data as a .mat file (matlab format)
 %save_as_format = 1 will save the processed data as a .txt file.(electrodes as columns, time as rows)
-%save_as_format = 0 will save the processed data as a .set file (EEGlab format)
-save_as_format = 0;
+%save_as_format = 2 will save the processed data as a .mat file (matlab format)
+%save_as_format = 3 will save the processed data as a .set file (EEGlab format)
+save_as_format = 3;
 
 %~~~~~~~~~~~~~~~~~~~~~~ no need to edit beyond this point ~~~~~~~~~~~~~~~~~
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -341,7 +341,7 @@ for current_file = 1:length(FileNames)
         if strcmp ('Output argument "wIC" (and maybe others) not assigned during call to "wICA".',wica_err.message)
             error('Error during wICA, most likely due to memory settings. Please confirm your EEGLAB memory settings are set according to the description in the HAPPE ReadMe')
         else
-            error (wica_err)
+            rethrow(wica_err)
         end
     end
         
@@ -535,6 +535,7 @@ outputtable.Properties.VariableNames ={'FileNames','File_Length_In_Secs','Number
     'Percent_ICs_Rejected', 'Percent_Variance_Kept_of_Post_Waveleted_Data','Median_Artifact_Probability_of_Kept_ICs',...
     'Mean_Artifact_Probability_of_Kept_ICs','Range_Artifact_Probability_of_Kept_ICs','Min_Artifact_Probability_of_Kept_ICs',...
     'Max_Artifact_Probability_of_Kept_ICs'};
-writetable(outputtable, ['HAPPE_all_subs_output_table ',datestr(now,'dd-mm-yyyy'),'.csv']);
 
 rmpath(genpath(cleanline_path));
+writetable(outputtable, ['HAPPE_all_subs_output_table ',datestr(now,'dd-mm-yyyy'),'.csv']);
+
