@@ -2,12 +2,13 @@
 % The Harvard Automated Pre-Processing Pipeline for EEG (HAPPE)
 % Version 2.0
 %
-% Change with respect to v1.0
-% - Allow processing EEGLAB datasets
-% - Allow using the latest version of EEGLAB
-% - Allow more types of ICA (additional input)
-% - Make cleaning line noise optional (additional input)
+% Change with respect to v1.0 (Arnaud Delorme, August 2022)
+% - Allow processing EEGLAB datasets instead of just EGI files
+% - Uses the latest version of EEGLAB and plugins instead of the one embeded in the plugin
+% - Allow more types of ICA (added additional input)
+% - Make cleaning line noise optional (added additional input)
 % - Fixed event handling for non-EGI datasets
+% - Fixed issue with paths
 %
 % Developed at Boston Children's Hospital Labs of Cognitive Neuroscience
 %
@@ -48,14 +49,14 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See GNU General
 % Public License for more details.
 %
-% In no event shall Boston Childrenís Hospital (BCH), the BCH Division of Developmental Medicine, the
+% In no event shall Boston Children‚Äôs Hospital (BCH), the BCH Division of Developmental Medicine, the
 % Laboratories of Cognitive Neuroscience (LCN), or pipeline contributors to BEAPP be
 % liable to any party for direct, indirect, special, incidental, or
 % consequential damages, including lost profits, arising out of the use of
-% this software and its documentation, even if Boston Childrenís Hospital,
+% this software and its documentation, even if Boston Children‚Äôs Hospital,
 % the Lab of Cognitive Neuroscience, and software contributors have been
 % advised of the possibility of such damage. Software and documentation is
-% provided ìas is.î Boston Childrenís Hospital, the Lab of Cognitive
+% provided ‚Äúas is.‚Äù Boston Children‚Äôs Hospital, the Lab of Cognitive
 % Neuroscience, and software contributors are under no obligation to
 % provide maintenance, support, updates, enhancements, or modifications.
 %
