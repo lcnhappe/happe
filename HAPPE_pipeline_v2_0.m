@@ -147,10 +147,10 @@ average_rereference = 1;
 NO_AVERAGE_REREF_channel_subset = {};
 
 % 10. select ICA method (all types of ICA accepted by pop_runica function)
-icaType = 'picard';
+icaType = 'picard'; % note: stops by default at 100 steps, but should be increased to 500
 
-% 11. Remove line noise
-clean_noise = false;
+% 11. Remove line noise (notch, cleanline, or none)
+clean_noise = 'notch';
 
 % 12. Select the format to save your processed data at the end of HAPPE!
 %save_as_format = 1 will save the processed data as a .txt file.(electrodes as columns, time as rows)
@@ -162,13 +162,13 @@ save_as_format = 3;
 %% no need to edit beyond this point 
 %%************************************
 if ~exist('eeglab', 'file')
-    error('EEGLAB is not in the path. You must install EEGLAB separately along with the MARA and FASTER plugin.')
+    error('EEGLAB v2022.1 or later is not in the path. You must install EEGLAB separately along with the MARA and FASTER plugin.')
 else
     if ~exist('eeg_checkset', 'file')
         eeglab;
     end
 end
-if ~exist('cleanline', 'file') && clean_noise
+if ~exist('cleanline', 'file') && strcmpi(clean_noise, 'cleanline')
     error('Cleanline not installed. Install it from the EEGLAB plugin manager.')
 end
 if ~exist('processMARA', 'file')
@@ -347,12 +347,16 @@ for current_file = 1:length(FileNames)
     full_selected_channels = EEG.chanlocs;
     
     %% reduce line noise in the data (note: may not completely eliminate, re-referencing helps at the end as well)
-    if clean_noise
+    if strcmpi(clean_noise, 'notch')
+        EEG = pop_eegfiltnew(EEG, 'locutoff',45, 'hicutoff', 55, 'revfilt', 1);
+    elseif strcmpi(clean_noise, 'cleanline')
         EEG = pop_cleanline(EEG, 'bandwidth',2,'chanlist',chan_index,'computepower',1,'linefreqs',...
             [60 120] ,'normSpectrum',0,'p',0.01,'pad',2,'plotfigures',0,'scanforlines',1,'sigtype',...
             'Channels','tau',100,'verb',0,'winsize',4,'winstep',1, 'ComputeSpectralPower','False');
         EEG.setname='rawEEG_f_cs_ln';
         EEG = eeg_checkset(EEG);
+    elseif ~strcmpi(clean_noise, 'none')
+        error('Unknown option')
     end
 
     % close window if visualizations are turned off
