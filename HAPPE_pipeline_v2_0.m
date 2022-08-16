@@ -96,7 +96,7 @@ freq_to_plot = [6 10 20 30 55];
 task_EEG_processing = 2;
 
 %if task-related EEG:
-task_conditions = {'oddball_with_reponse', 'standard'}; %enter the stimulus condition tags
+task_conditions = conditions; %enter the stimulus condition tags
 
 %if resting-state EEG:
 % list all potential names of the matlab variable that contains the EEG data for your files:
