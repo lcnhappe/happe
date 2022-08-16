@@ -128,8 +128,8 @@ segment_interpolation = 1;
 segment_rejection = 0;
 
 % if you are rejecting segments, what minimum/maximum signal amplitude do you want to use as the artifact threshold?
-reject_min_amp = -150;
-reject_max_amp = 150;
+reject_min_amp = -param;
+reject_max_amp = param;
 
 % do you want to do segment rejection using all user-specified channels above ( = 0) or a subset of channels in an ROI ( = 1)?
 ROI_channels_only = 0;
@@ -151,7 +151,7 @@ NO_AVERAGE_REREF_channel_subset = {};
 icaType = 'picard'; % note: stops by default at 100 steps, but should be increased to 500
 
 % 11. Remove line noise (notch, cleanline, or none)
-clean_noise = 'notch';
+clean_noise = 'cleanline';
 
 % 12. Select the format to save your processed data at the end of HAPPE!
 %save_as_format = 1 will save the processed data as a .txt file.(electrodes as columns, time as rows)
