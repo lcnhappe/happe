@@ -1,14 +1,5 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % The Harvard Automated Pre-Processing Pipeline for EEG (HAPPE)
-% Version 2.0
-%
-% Change with respect to v1.0 (Arnaud Delorme, August 2022)
-% - Allow processing EEGLAB datasets instead of just EGI files
-% - Uses the latest version of EEGLAB and plugins instead of the one embeded in the plugin
-% - Allow more types of ICA (added additional input)
-% - Make cleaning line noise optional (added additional input)
-% - Fixed event handling for non-EGI datasets
-% - Fixed issue with paths
 %
 % Developed at Boston Children's Hospital Labs of Cognitive Neuroscience
 %
@@ -43,6 +34,19 @@
 %
 % Any code that is not part of the third-party dependencies is released
 % under the GNU General Public License version 3.
+%
+% % ***********
+% % Version 2.0
+% % ***********
+%
+% Change with respect to v1.0 (Arnaud Delorme, August 2022)
+% - Allow processing EEGLAB datasets instead of just EGI files
+% - Uses the latest version of EEGLAB and plugins instead of the one embeded in the plugin
+% - Allow more types of ICA (added additional input)
+% - Make cleaning line noise optional (added additional input)
+% - Fixed event handling for non-EGI datasets
+% - Fixed issue with paths
+% - Adding example file
 
 % This software is being distributed with the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even implied warranty of
@@ -68,9 +72,12 @@
 %% USER INPUTS TO EDIT
 %%*********************
 
+% 0. Run the script without modifying it making sure eveything is installed properly
+
 % 1. enter path to the folder that has the datasets you want to analyze and folder for outputs
-FileNames = {fileName};
-outputFolder = '/Users/arno/temp';
+% supports EEGLAB and EGI mff and EGI binary simple datasets. Use a dummy EEGLAB file as demo
+FileNames = { ['data' filesep 'eeglab_data.set' ] }
+outputFolder = '.'
 
 % 2. Which acquisition layout would you like to use?
 % Note: Users wishing to use a different net type can run HAPPE in 
@@ -82,7 +89,7 @@ layout_type = 2;
 % 3. list channels of interest, including the 10-20 channels. User defined channels occur at the end of the sequence e.g. 'E39' 'E40'
 %the 18 "10-20" channels that NEED to be in the chan_IDs: 'FP1' 'FP2' 'F3'
 % 'F4' 'F7' 'F8' 'C3' 'C4' 'T3' 'T4' 'PZ' 'O1' 'O2' 'T5' 'T6' 'P3' 'P4' 'Fz'
-chan_IDs= {'Fp1' 'AF7' 'AF3' 'F1' 'F3' 'F5' 'F7' 'FT7' 'FC5' 'FC3' 'FC1' 'C1' 'C3' 'C5' 'T7' 'TP7' 'CP5' 'CP3' 'CP1' 'P1' 'P3' 'P5' 'P7' 'P9' 'PO7' 'PO3' 'O1' 'Iz' 'Oz' 'POz' 'Pz' 'CPz' 'Fpz' 'Fp2' 'AF8' 'AF4' 'AFz' 'Fz' 'F2' 'F4' 'F6' 'F8' 'FT8' 'FC6' 'FC4' 'FC2' 'FCz' 'Cz' 'C2' 'C4' 'C6' 'T8' 'TP8' 'CP6' 'CP4' 'CP2' 'P2' 'P4' 'P6' 'P8' 'P10' 'PO8' 'PO4' 'O2'}
+chan_IDs = {'FPz' 'EOG1' 'F3' 'Fz' 'F4' 'EOG2' 'FC5' 'FC1' 'FC2' 'FC6' 'T7' 'C3' 'C4' 'Cz' 'T8' 'CP5' 'CP1' 'CP2' 'CP6' 'P7' 'P3' 'Pz' 'P4' 'P8' 'PO7' 'PO3' 'POz' 'PO4' 'PO8' 'O1' 'Oz' 'O2'};
 
 % 4. run HAPPE in semi-automated setting with visualizations (=1) or fully-automated, no visualizations setting ( = 0)
 pipeline_visualizations_semiautomated = 0;
@@ -97,7 +104,7 @@ freq_to_plot = [6 10 20 30 55];
 task_EEG_processing = 2;
 
 %if task-related EEG:
-task_conditions = conditions; %enter the stimulus condition tags
+task_conditions = {'square'}; %enter the stimulus condition tags (multiple ones is fine)
 
 %if resting-state EEG:
 % list all potential names of the matlab variable that contains the EEG data for your files:
@@ -128,8 +135,8 @@ segment_interpolation = 1;
 segment_rejection = 0;
 
 % if you are rejecting segments, what minimum/maximum signal amplitude do you want to use as the artifact threshold?
-reject_min_amp = -param;
-reject_max_amp = param;
+reject_min_amp = -100;
+reject_max_amp = 100;
 
 % do you want to do segment rejection using all user-specified channels above ( = 0) or a subset of channels in an ROI ( = 1)?
 ROI_channels_only = 0;
@@ -170,18 +177,16 @@ else
     end
 end
 if ~exist('cleanline', 'file') && strcmpi(clean_noise, 'cleanline')
-    error('Cleanline not installed. Install it from the EEGLAB plugin manager.')
+    disp('Cleanline not installed. Installing it from the EEGLAB plugin manager.')
+    plugin_askinstall('cleanline', 'cleanline', 1);
 end
 if ~exist('processMARA', 'file')
-    error('MARA not installed. Install it from the EEGLAB plugin manager.')
+    disp('MARA not installed. Installing it from the EEGLAB plugin manager.')
+    plugin_askinstall('MARA', 'MARA', 1);
 end
 if ~exist('FASTER', 'file')
-    error('FASTER not installed. Install it from the EEGLAB plugin manager.')
-end
-
-% convert relative path to absolute ones
-for iFile = 1:length(FileNames)
-    FileNames{iFile} = fullfile(pwd, FileNames{iFile});
+    disp('FASTER not installed. Installing it from the EEGLAB plugin manager.')
+    plugin_askinstall('FASTER', 'FASTER', 1);
 end
 
 %% make output folders:
@@ -209,10 +214,22 @@ if ~isdir ([src_folder_name filesep 'processed'])
     mkdir ([src_folder_name filesep 'processed']);
 end
 
+if ~pipeline_visualizations_semiautomated
+    fprintf(2, '***************************************************************************\n')
+    fprintf(2, 'This is the automated pipeline. Turn on the vizualisation flag to see plots\n')
+    fprintf(2, '***************************************************************************\n')
+end
 %% add relevant folders to path
 
 % add HAPPE script path
 happe_directory_path = fileparts(which('HAPPE_pipeline_v1_0.m'));
+
+% convert relative path to absolute ones
+for iFile = 1:length(FileNames)
+    if exist(fullfile(happe_directory_path, FileNames{iFile}))
+        FileNames{iFile} = fullfile(happe_directory_path, FileNames{iFile});
+    end
+end
 
 % will eventually allow users to set own eeglab path -- for now, assume
 % using eeglab14_0_0b included in HAPPE 
@@ -558,7 +575,11 @@ for current_file = 1:length(FileNames)
     Min_Artifact_Probability_of_Kept_ICs(current_file)=min_artif_prob_good_ICs;
     Max_Artifact_Probability_of_Kept_ICs(current_file)=max_artif_prob_good_ICs;
     Number_Segments_Post_Segment_Rejection(current_file)=EEG.trials;
-    cd ([src_folder_name filesep 'processed']);
+    if ~exist([src_folder_name filesep 'processed'])
+        mkdir([src_folder_name filesep 'processed'])
+    else
+        cd ([src_folder_name filesep 'processed']);
+    end
     %% save preprocessed dataset with subject ID as either txt file (user specified) or eeglab .set file
     
     switch save_as_format
@@ -592,3 +613,4 @@ outputtable.Properties.VariableNames ={'FileNames','File_Length_In_Secs','Number
 
 writetable(outputtable, ['HAPPE_all_subs_output_table ',datestr(now,'dd-mm-yyyy'),'.csv']);
 
+fprintf(2, 'Look for the file and data saved on disk in the same path as the original files\n')
