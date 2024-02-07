@@ -1,5 +1,4 @@
-Version 2.0 of HAPPE pipeline
-***********
+# Version 2.0 of HAPPE pipeline
 
 Change with respect to v1.0 (Arnaud Delorme, August 2022)
 - Allow processing EEGLAB datasets instead of just EGI files
@@ -10,6 +9,5 @@ Change with respect to v1.0 (Arnaud Delorme, August 2022)
 - Fixed issue with paths
 - Adding example file
 
-New HAPPE
-***********
+# New HAPPE
 Another new HAPPE pipeline is available at https://github.com/PINE-Lab/HAPPE
