@@ -9,3 +9,7 @@ Change with respect to v1.0 (Arnaud Delorme, August 2022)
 - Fixed event handling for non-EGI datasets
 - Fixed issue with paths
 - Adding example file
+
+New HAPPE
+***********
+Another new HAPPE pipeline is available at https://github.com/PINE-Lab/HAPPE
